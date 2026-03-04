@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NET FREEX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-red: #E50914;
+            --dark-red: #83050C;
+            --black-bg: #050505;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--black-bg);
+            color: white;
+            overflow-x: hidden;
+        }
+        .font-bebas { font-family: 'Bebas Neue', sans-serif; }
+        
+        /* Animated Liquid Background - Optimized */
+        .bg-liquid {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000;
+            z-index: -2;
+            overflow: hidden;
+            pointer-events: none; /* Improve performance */
+        }
+        .blob {
+            position: absolute;
+            filter: blur(60px); /* Reduced blur for performance */
+            z-index: -1;
+            opacity: 0.4;
+            will-change: transform; /* Hint to browser */
+            animation: moveBlob 20s infinite alternate ease-in-out;
+        }
+        .blob-1 { width: 50vw; height: 50vw; background: #E50914; top: -10%; left: -10%; animation-delay: 0s; }
+        .blob-2 { width: 40vw; height: 40vw; background: #83050C; bottom: -20%; right: -10%; animation-delay: -5s; }
+        .blob-3 { width: 60vw; height: 60vw; background: #300000; top: 30%; left: 40%; animation-delay: -10s; }
+        
+        @keyframes moveBlob {
+            0% { transform: translate3d(0, 0, 0) scale(1); }
+            50% { transform: translate3d(10%, 20%, 0) scale(1.1); }
+            100% { transform: translate3d(-10%, -10%, 0) scale(0.9); }
+        }
+
+        /* Hover Effects - Optimized */
+        .movie-card {
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            border-radius: 8px;
+            will-change: transform;
+        }
+        .movie-card:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 10px 25px rgba(229, 9, 20, 0.4);
+            z-index: 20;
+        }
+        .movie-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            box-shadow: inset 0 0 0 2px transparent;
+            transition: box-shadow 0.3s ease;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+        .movie-card:hover::after {
+            box-shadow: inset 0 0 0 2px var(--primary-red);
+        }
+
+        /* Top 10 Numbers */
+        .top-card-wrapper {
+            display: flex;
+            align-items: flex-end;
+            position: relative;
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .top-card-wrapper:hover {
+            transform: scale(1.05) translateY(-10px);
+            z-index: 20;
+        }
+        .rank-number {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 14rem;
+            line-height: 0.75;
+            color: var(--black-bg);
+            -webkit-text-stroke: 3px #fff;
+            text-shadow: 2px 2px 15px rgba(0,0,0,0.8);
+            margin-right: -40px;
+            z-index: 1;
+            font-weight: 800;
+            letter-spacing: -5px;
+            transition: all 0.4s ease;
+        }
+        .top-card-wrapper:hover .rank-number {
+            -webkit-text-stroke: 3px var(--primary-red);
+            color: rgba(229, 9, 20, 0.2);
+        }
+        .top-card-wrapper .movie-card {
+            flex: 1;
+            z-index: 2;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.8);
+            width: 100%;
+        }
+        .top-card-wrapper .movie-card:hover {
+            transform: none;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.8);
+        }
+        .top-card-wrapper:hover .movie-card::after {
+            box-shadow: inset 0 0 0 2px var(--primary-red);
+        }
+        
+        /* Custom Thumbnails */
+        .custom-thumb {
+            background: linear-gradient(135deg, #111 0%, #300 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 1rem;
+            aspect-ratio: 16/9;
+            position: relative;
+        }
+        .custom-thumb::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.8) 100%);
+        }
+        .custom-thumb h3 {
+            position: relative;
+            z-index: 2;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(229, 9, 20, 0.8);
+            line-height: 1.1;
+        }
+
+        /* Search & Filters Animation */
+        .reveal-slow {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .reveal-slow.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Filter Buttons */
+        .filter-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary-red);
+            border-color: var(--primary-red);
+            box-shadow: 0 0 15px rgba(229, 9, 20, 0.5);
+        }
+
+        /* Hero Section */
+        .hero-gradient {
+            background: linear-gradient(0deg, var(--black-bg) 0%, rgba(5,5,5,0.9) 10%, transparent 50%, rgba(0,0,0,0.7) 100%);
+        }
+        
+        /* Unified Modal Styles */
+        #unified-modal {
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+        }
+        .modal-sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .modal-sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+        }
+        .modal-sidebar::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-red);
+        }
+        .recommendation-card:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-red); }
+    </style>
+</head>
+<body>
+    <!-- Liquid Background -->
+    <div class="bg-liquid">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 transition-all duration-300" id="navbar">
+        <div class="px-6 py-4 flex items-center justify-between bg-gradient-to-b from-black/90 to-transparent">
+            <h1 class="text-4xl font-bebas text-[#E50914] tracking-wider drop-shadow-[0_0_15px_rgba(229,9,20,0.5)]">NET FREEX</h1>
+            <div class="w-10 h-10 rounded bg-[#E50914] flex items-center justify-center font-bebas text-2xl shadow-[0_0_10px_rgba(229,9,20,0.5)]">N</div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header id="hero" class="relative h-[85vh] w-full flex items-end pb-20">
+        <div class="absolute inset-0 z-0 bg-black">
+            <img id="hero-img" src="image1.png" alt="Oppenheimer" class="w-full h-full object-cover opacity-70 transition-opacity duration-1000" onerror="this.src='https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=2070&auto=format&fit=crop';">
+            <video id="hero-video" src="video1.mp4" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000"></video>
+            <div class="absolute inset-0 hero-gradient"></div>
+        </div>
+        <div class="relative z-10 px-6 md:px-16 max-w-3xl">
+            <h2 class="text-6xl md:text-8xl font-bebas mb-4 drop-shadow-lg">OPPENHEIMER</h2>
+            <p class="text-lg md:text-xl text-gray-300 mb-8 line-clamp-3">
+                En 1942, convaincus que l'Allemagne nazie est en train de développer une arme nucléaire, les États-Unis initient, dans le plus grand secret, le "Projet Manhattan" destiné à mettre au point la première bombe atomique de l'histoire.
+            </p>
+            <div class="flex gap-4">
+                <button id="hero-play-btn" class="bg-white text-black px-8 py-3 rounded font-bold flex items-center gap-2 hover:bg-gray-200 transition-colors">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    Lecture
+                </button>
+                <button class="bg-gray-500/50 text-white px-8 py-3 rounded font-bold flex items-center gap-2 hover:bg-gray-500/70 transition-colors backdrop-blur-sm">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Plus d'infos
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="relative z-10 px-6 md:px-16 pt-8 pb-20">
+        
+        <!-- Top Movies (Ranked) -->
+        <section class="mb-16">
+            <h3 class="text-3xl font-bebas tracking-wider mb-8 flex items-center gap-3 drop-shadow-[0_0_10px_rgba(229,9,20,0.5)]">
+                <span class="w-2 h-8 bg-[#E50914] rounded"></span>
+                TOP 9 DES PLUS REGARDÉS
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-y-12 gap-x-8 pl-8" id="top-movies-container">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <!-- Series Highlight Section -->
+        <section class="mb-20">
+            <h3 class="text-3xl font-bebas tracking-wider mb-8 flex items-center gap-3 drop-shadow-[0_0_10px_rgba(229,9,20,0.5)]">
+                <span class="w-2 h-8 bg-[#E50914] rounded"></span>
+                SÉRIES À NE PAS MANQUER
+            </h3>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Prison Break (Large) -->
+                <div id="pb-card" class="lg:col-span-3 relative group cursor-pointer rounded-xl overflow-hidden shadow-2xl h-[500px]">
+                    <img src="image11.png" alt="Prison Break" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2000&auto=format&fit=crop'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent flex flex-col justify-end p-10">
+                        <h2 class="text-6xl font-bebas text-white drop-shadow-lg mb-2">PRISON BREAK</h2>
+                        <p class="text-gray-300 max-w-2xl text-lg mb-6 line-clamp-2">Michael Scofield s'engage dans une véritable course contre la montre : son frère Lincoln est dans le couloir de la mort, en attente de son exécution.</p>
+                        <button class="bg-[#E50914] text-white px-8 py-3 rounded font-bold w-fit flex items-center gap-2 hover:bg-[#b20710] transition-colors">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            Regarder la série
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- South Park -->
+                <div id="sp-card" class="relative group cursor-pointer rounded-xl overflow-hidden shadow-xl h-[300px]">
+                    <img src="image12.png" alt="South Park" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1535905557558-afc4877a26fc?q=80&w=1000&auto=format&fit=crop'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-6">
+                        <h3 class="text-3xl font-bebas text-white drop-shadow-md">SOUTH PARK</h3>
+                        <p class="text-sm text-gray-300">Série d'animation</p>
+                    </div>
+                </div>
+
+                <!-- Family Business -->
+                <div id="fb-card" class="lg:col-span-2 relative group cursor-pointer rounded-xl overflow-hidden shadow-xl h-[300px]">
+                    <img src="image13.png" alt="Family Business" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=1000&auto=format&fit=crop'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-6">
+                        <h3 class="text-3xl font-bebas text-white drop-shadow-md">FAMILY BUSINESS</h3>
+                        <p class="text-sm text-gray-300">Comédie</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Voir Plus Section -->
+        <div class="text-center my-20" id="voir-plus-container">
+            <button id="voir-plus-btn" class="border-2 border-[#E50914] text-[#E50914] hover:bg-[#E50914] hover:text-white px-12 py-4 rounded-full font-bebas text-2xl tracking-widest transition-all duration-500 shadow-[0_0_20px_rgba(229,9,20,0.4)] hover:shadow-[0_0_40px_rgba(229,9,20,0.8)] hover:scale-110">
+                DÉCOUVRIR LE CATALOGUE
+            </button>
+        </div>
+
+        <!-- Search & Filters (Hidden initially) -->
+        <section id="search-filters" class="hidden reveal-slow mb-12">
+            <div class="flex flex-col md:flex-row gap-6 items-center justify-between bg-black/40 p-6 rounded-2xl border border-white/10 backdrop-blur-md">
+                <div class="relative w-full md:w-1/3">
+                    <input type="text" id="search-input" placeholder="Rechercher un film..." class="w-full bg-white/10 border border-white/20 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#E50914] transition-colors">
+                    <svg class="w-5 h-5 absolute right-4 top-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+                <div class="flex flex-wrap justify-center gap-3" id="filters-container">
+                    <button class="filter-btn active px-6 py-2 rounded-full font-semibold text-sm" data-filter="all">Tout</button>
+                    <button class="filter-btn px-6 py-2 rounded-full font-semibold text-sm" data-filter="Comédie">Comédie</button>
+                    <button class="filter-btn px-6 py-2 rounded-full font-semibold text-sm" data-filter="Action">Action</button>
+                    <button class="filter-btn px-6 py-2 rounded-full font-semibold text-sm" data-filter="Horreur">Horreur</button>
+                    <button class="filter-btn px-6 py-2 rounded-full font-semibold text-sm" data-filter="Animation">Animation</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- More Movies -->
+        <section id="more-movies-section" class="hidden reveal-slow mb-12">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" id="more-movies-container">
+                <!-- Injected via JS -->
+            </div>
+            <div id="no-results" class="hidden text-center py-20 text-gray-400 font-bebas text-3xl tracking-wider">
+                Aucun résultat trouvé.
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Unified Modal (YouTube Style) -->
+    <div id="unified-modal" class="fixed inset-0 z-[100] hidden bg-black/95 flex items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="relative w-full h-full md:h-[90vh] md:w-[95vw] max-w-[1600px] bg-[#0f0f0f] md:rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row">
+            
+            <!-- Close Button -->
+            <button onclick="closeUnifiedModal()" class="absolute top-4 right-4 z-50 w-10 h-10 bg-black/50 hover:bg-[#E50914] rounded-full flex items-center justify-center text-white transition-colors backdrop-blur-sm">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+
+            <!-- Left: Main Content (Video or Message) -->
+            <div class="w-full md:w-3/4 h-full bg-black relative flex flex-col">
+                <div id="modal-video-container" class="relative w-full aspect-video md:h-full bg-black flex items-center justify-center">
+                    <iframe id="unified-video-frame" class="w-full h-full" frameborder="0" allowfullscreen></iframe>
+                    
+                    <!-- Placeholder for External Links -->
+                    <div id="external-link-ui" class="hidden absolute inset-0 flex flex-col items-center justify-center text-center p-10 bg-[#141414]">
+                        <div class="w-24 h-24 rounded-full bg-[#E50914] flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(229,9,20,0.4)]">
+                            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        </div>
+                        <h2 class="text-4xl font-bebas text-white mb-4">Contenu Externe</h2>
+                        <p id="external-message" class="text-xl text-gray-300 mb-8 max-w-lg">Ce contenu est disponible sur une plateforme partenaire.</p>
+                        <a id="external-btn" href="#" target="_blank" class="bg-white text-black px-8 py-4 rounded font-bold text-lg hover:bg-gray-200 transition-colors flex items-center gap-2">
+                            Accéder au contenu
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Sidebar (Recommendations or Episodes) -->
+            <div class="w-full md:w-1/4 h-full bg-[#0f0f0f] border-l border-white/5 flex flex-col">
+                <div class="p-5 border-b border-white/5">
+                    <h3 id="sidebar-title" class="text-xl font-bold text-white">À découvrir</h3>
+                </div>
+                
+                <!-- Sidebar Content -->
+                <div id="modal-sidebar-content" class="modal-sidebar flex-1 overflow-y-auto p-4 space-y-4">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if(window.scrollY > 50) {
+                nav.classList.add('bg-black');
+                nav.classList.remove('bg-gradient-to-b', 'from-black/90', 'to-transparent');
+            } else {
+                nav.classList.remove('bg-black');
+                nav.classList.add('bg-gradient-to-b', 'from-black/90', 'to-transparent');
+            }
+        });
+
+        // Data
+        const topMovies = [
+            { title: "Shutter Island", url: "https://www.tokyvideo.com/fr/embed/766755", img: "image2.png" },
+            { title: "Le Comte de Monte-Cristo", url: "https://www.tokyvideo.com/fr/embed/759955", img: "image3.png" },
+            { title: "Astérix & Obélix - Mission Cléopâtre", url: "https://www.tokyvideo.com/fr/embed/563582", img: "image4.png" },
+            { title: "Intouchables", url: "https://www.tokyvideo.com/fr/embed/752792", img: "image5.png" },
+            { title: "Ratatouille", url: "https://www.tokyvideo.com/fr/embed/691420", img: "image6.png" },
+            { title: "Super Mario Bros le film", url: "https://www.tokyvideo.com/fr/embed/452975", img: "image7.png" },
+            { title: "The Truman Show", url: "https://www.tokyvideo.com/fr/embed/755480", img: "image8.png" },
+            { title: "Arrête moi si tu peux", url: "https://www.tokyvideo.com/fr/embed/709542", img: "image9.png" },
+            { title: "Seven", url: "https://www.tokyvideo.com/fr/embed/706776", img: "image10.png" }
+        ];
+
+        // Categories assignment (mocked for demo)
+        const getCategory = (title) => {
+            const t = title.toLowerCase();
+            if(t.includes('saw') || t.includes('chucky') || t.includes('exorciste') || t.includes('noir') || t.includes('centipede') || t.includes('vendredi')) return 'Horreur';
+            if(t.includes('rush') || t.includes('jackie') || t.includes('x-men') || t.includes('xmen') || t.includes('seine') || t.includes('mousquetaires') || t.includes('prison')) return 'Action';
+            if(t.includes('ratatouille') || t.includes('simpson') || t.includes('monstres') || t.includes('toy') || t.includes('mario') || t.includes('alchemist') || t.includes('south park')) return 'Animation';
+            return 'Comédie';
+        };
+
+        const prisonBreakData = {
+            title: "Prison Break",
+            type: "series",
+            seasons: [
+                {
+                    name: "Saison 1",
+                    episodes: [
+                        { ep: 1, url: "https://www.tokyvideo.com/fr/embed/813048" }, { ep: 2, url: "https://www.tokyvideo.com/fr/embed/811270" },
+                        { ep: 3, url: "https://www.tokyvideo.com/fr/embed/813054" }, { ep: 4, url: "https://www.tokyvideo.com/fr/embed/813060" },
+                        { ep: 5, url: "https://www.tokyvideo.com/fr/embed/813067" }, { ep: 6, url: "https://www.tokyvideo.com/fr/embed/813071" },
+                        { ep: 7, url: "https://www.tokyvideo.com/fr/embed/813075" }, { ep: 8, url: "https://www.tokyvideo.com/fr/embed/813076" },
+                        { ep: 9, url: null }, { ep: 10, url: "https://www.tokyvideo.com/fr/embed/813082" },
+                        { ep: 11, url: "https://www.tokyvideo.com/fr/embed/813088" }, { ep: 12, url: "https://www.tokyvideo.com/fr/embed/813090" },
+                        { ep: 13, url: null }, { ep: 14, url: "https://www.tokyvideo.com/fr/embed/813096" },
+                        { ep: 15, url: "https://www.tokyvideo.com/fr/embed/813098" }, { ep: 16, url: "https://www.tokyvideo.com/fr/embed/813103" },
+                        { ep: 17, url: "https://www.tokyvideo.com/fr/embed/813106" }, { ep: 18, url: "https://www.tokyvideo.com/fr/embed/813107" },
+                        { ep: 19, url: "https://www.tokyvideo.com/fr/embed/813110" }, { ep: 20, url: "https://www.tokyvideo.com/fr/embed/813112" },
+                        { ep: 21, url: "https://www.tokyvideo.com/fr/embed/813113" }, { ep: 22, url: "https://www.tokyvideo.com/fr/embed/813115" }
+                    ]
+                },
+                {
+                    name: "Saison 2",
+                    episodes: [
+                        { ep: 1, url: "https://www.tokyvideo.com/fr/embed/818880" }, { ep: 2, url: "https://www.tokyvideo.com/fr/embed/818876" },
+                        { ep: 3, url: "https://www.tokyvideo.com/fr/embed/818875" }, { ep: 4, url: "https://www.tokyvideo.com/fr/embed/818874" },
+                        { ep: 5, url: "https://www.tokyvideo.com/fr/embed/818873" }, { ep: 6, url: "https://www.tokyvideo.com/fr/embed/818870" },
+                        { ep: 7, url: "https://www.tokyvideo.com/fr/embed/818868" }, { ep: 8, url: "https://www.tokyvideo.com/fr/embed/818866" },
+                        { ep: 9, url: "https://www.tokyvideo.com/fr/embed/818864" }, { ep: 10, url: "https://www.tokyvideo.com/fr/embed/818863" },
+                        { ep: 11, url: "https://www.tokyvideo.com/fr/embed/818861" }, { ep: 12, url: "https://www.tokyvideo.com/fr/embed/818362" },
+                        { ep: 13, url: "https://www.tokyvideo.com/fr/embed/818361" }, { ep: 14, url: "https://www.tokyvideo.com/fr/embed/818358" },
+                        { ep: 15, url: "https://www.tokyvideo.com/fr/embed/818355" }, { ep: 16, url: "https://www.tokyvideo.com/fr/embed/818351" },
+                        { ep: 17, url: "https://www.tokyvideo.com/fr/embed/818349" }, { ep: 18, url: "https://www.tokyvideo.com/fr/embed/818348" },
+                        { ep: 19, url: "https://www.tokyvideo.com/fr/embed/818345" }, { ep: 20, url: "https://www.tokyvideo.com/fr/embed/818343" },
+                        { ep: 21, url: "https://www.tokyvideo.com/fr/embed/818342" }, { ep: 22, url: "https://www.tokyvideo.com/fr/embed/818333" }
+                    ]
+                },
+                {
+                    name: "Saison 3",
+                    episodes: [
+                        { ep: 1, url: "https://www.tokyvideo.com/fr/embed/813229" }, { ep: 2, url: "https://www.tokyvideo.com/fr/embed/814674" },
+                        { ep: 3, url: "https://www.tokyvideo.com/fr/embed/813222" }, { ep: 4, url: "https://www.tokyvideo.com/fr/embed/813219" },
+                        { ep: 5, url: "https://www.tokyvideo.com/fr/embed/814678" }, { ep: 6, url: "https://www.tokyvideo.com/fr/embed/813213" },
+                        { ep: 7, url: "https://www.tokyvideo.com/fr/embed/813210" }, { ep: 8, url: "https://www.tokyvideo.com/fr/embed/814684" },
+                        { ep: 9, url: "https://www.tokyvideo.com/fr/embed/813206" }, { ep: 10, url: "https://www.tokyvideo.com/fr/embed/813203" },
+                        { ep: 11, url: "https://www.tokyvideo.com/fr/embed/813377" }, { ep: 12, url: "https://www.tokyvideo.com/fr/embed/813197" },
+                        { ep: 13, url: "https://www.tokyvideo.com/fr/embed/811268" }, { ep: 14, url: "https://www.tokyvideo.com/fr/embed/835007" },
+                        { ep: 15, url: null }
+                    ]
+                }
+            ]
+        };
+
+        const familyBusinessData = {
+            title: "Family Business",
+            type: "external_series",
+            seasons: [
+                {
+                    name: "Saison 1",
+                    episodes: [
+                        { ep: 1, url: "https://m.ok.ru/video/1454608157382" }, { ep: 2, url: "https://m.ok.ru/video/6496913918562" },
+                        { ep: 3, url: "https://m.ok.ru/video/156816866909538-1" }, { ep: 4, url: "https://m.ok.ru/video/6496913656418" },
+                        { ep: 5, url: "https://m.ok.ru/video/6496913263202" }, { ep: 6, url: "https://m.ok.ru/video/6496913066594" }
+                    ]
+                },
+                {
+                    name: "Saison 2",
+                    episodes: [
+                        { ep: 1, url: "https://m.ok.ru/video/6496907823714" }, { ep: 2, url: "https://m.ok.ru/video/6496907627106" },
+                        { ep: 3, url: "https://m.ok.ru/video/6496907496034" }, { ep: 4, url: "https://m.ok.ru/video/6496907233890" },
+                        { ep: 5, url: "https://m.ok.ru/video/6496907102818" }
+                    ]
+                },
+                {
+                    name: "Saison 3",
+                    episodes: [
+                        { ep: 1, url: "https://m.ok.ru/video/6496906971746" }, { ep: 2, url: "https://m.ok.ru/video/6496230836834" },
+                        { ep: 3, url: "https://m.ok.ru/video/6496230640226" }, { ep: 4, url: "https://m.ok.ru/video/6496230509154" },
+                        { ep: 5, url: "https://m.ok.ru/video/6496230378082" }, { ep: 6, url: "https://m.ok.ru/video/6496906578530" }
+                    ]
+                }
+            ]
+        };
+
+        const southParkData = {
+            title: "South Park",
+            type: "external_redirect",
+            url: "https://www.southtv.fr",
+            message: "South Park est disponible sur une plateforme partenaire. Cliquez sur le bouton ci-dessous pour y accéder dans un nouvel onglet."
+        };
+
+        const otherMoviesData = [
+            ["Prison Break", prisonBreakData],
+            ["Family Business", familyBusinessData],
+            ["South Park", southParkData],
+            ["Les Segpa", "164325"], ["Les Segpa au ski", "765131"], ["Fullmetal Alchemist : la dernière alchimie", "171204"],
+            ["Marsupilami", "826385"], ["Astérix et Obélix contre César", "697626"], ["Astérix chez les Bretons", "710599"],
+            ["Astérix aux Jeux olympiques", "744759"], ["Astérix et Obélix au service de Sa Majesté", "749050"],
+            ["Astérix et les indiens", "682249"], ["Les Simpson, le film", "704827"], ["Monstres et Cie", "697183"],
+            ["Toy story 3", "776549"], ["La Vérité si je mens 2", "786984"], ["La Verite Si Je Mens 3", "440477"],
+            ["Alibi.com", "747068"], ["Alibi.com 2", "396357"], ["Problemos", "824602"], ["Les Tuche", "705527"],
+            ["Les Tuche 2 : Le Rêve américain", "742254"], ["Les Tuche 3", "705531"], ["Johnny English", "696982"],
+            ["Raid Dingue", "766243"], ["Real Steel", "696990"], ["La Tour Montparnasse infernale", "717948"],
+            ["Rush Hour", "431788"], ["Rush Hour 2", "304288"], ["Rush Hour 3", "73372"], ["Le Tour du monde en 80 jours", "743906"],
+            ["Jackie Chan a Hong Kong", "715503"], ["Jackie Chan dans le Bronx", "733672"], ["X-Men - Le Commencement", "731790"],
+            ["XMEN 2", "714192"], ["Xmen 3 - L'affrontement Final", "745511"], ["Le Prestige", "840643"], ["Loin du périph", "148261"],
+            ["Pas moyen de s'entendre", "177635"], ["Fullmetal Alchemist : la vengeance de Scar", "171207"], ["Django", "247769"],
+            ["Brice de Nice 3", "766540"], ["Les Dalton", "764907"], ["Bienvenue à bord", "747977"], ["Camping", "745416"],
+            ["Camping 2", "766843"], ["Camping 3", "744791"], ["Les Visiteurs", "299114"], ["Les Visiteurs 2", "299115"],
+            ["Les Seigneurs", "765129"], ["Boule et Bill 1", "714027"], ["Boule & Bill 2", "748143"], ["Vive la France", "827729"],
+            ["Fonzy", "751702"], ["Le Manoir Hanté", "794457"], ["Chucky", "732438"], ["La Malédiction de Chucky", "844959"],
+            ["Saw 1", "807118"], ["Saw 2", "807119"], ["The Human Centipede 3", "827200"], ["L'Exorciste", "741062"],
+            ["Dans le noir", "814138"], ["Sous la Seine", "718322"], ["Forrest Gump", "760030"], ["Vendredi 13", "836606"],
+            ["Very Bad Trip", "828899"], ["Very Bad Trip 2", "443487"], ["Very Bad Trip 3", "828902"], ["LOL", "784218"],
+            ["American Pie", "780515"], ["American Pie 2", "814941"], ["Taxi 1", "799073"], ["Hollywoo", "751892"],
+            ["Reste un peu", "825453"], ["Inestimable", "659473"], ["How High", "725096"], ["Shaolin Soccer", "302046"],
+            ["127h", "470513"], ["Fatal", "479168"], ["Titeuf le film", "725211"], ["La Guerre des Boutons", "757389"],
+            ["Comme Un Chef", "650091"], ["Supercondriaque", "826382"], ["La Folle Histoire de Max & Léon", "757332"],
+            ["Turbo", "713681"], ["Le Petit Spirou", "172683"], ["Budapest", "748911"], ["La Grande Classe", "757353"],
+            ["Get Out", "822342"], ["Black Swan", "322978"], ["Le Crocodile du Botswanga", "760089"], ["8 rue de l'Humanité", "745739"],
+            ["En passant pécho", "751160"], ["Le Jouet", "814601"], ["Roman Frayssinet", "483791"], ["Voleuses", "827753"],
+            ["Les Trois Mousquetaires", "835643"], ["Cash", "749014"]
+        ];
+
+        const otherMovies = otherMoviesData.map(m => {
+            if(typeof m[1] === 'object') {
+                return { title: m[0], data: m[1], category: getCategory(m[0]), isSpecial: true };
+            }
+            return {
+                title: m[0],
+                url: m[1].includes('http') ? m[1] : `https://www.tokyvideo.com/fr/embed/${m[1]}`,
+                category: getCategory(m[0]),
+                isSpecial: false
+            };
+        });
+
+        // Render Top Movies (Ranked)
+        const topContainer = document.getElementById('top-movies-container');
+        topMovies.forEach((movie, index) => {
+            const div = document.createElement('div');
+            div.className = 'top-card-wrapper cursor-pointer';
+            div.onclick = () => openVideo(movie.url, movie.title);
+            div.innerHTML = `
+                <span class="rank-number">${index + 1}</span>
+                <div class="movie-card aspect-[16/9] bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+                    <img src="${movie.img}" alt="${movie.title}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=800&auto=format&fit=crop';">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                        <h4 class="font-bold text-sm md:text-base">${movie.title}</h4>
+                    </div>
+                </div>
+            `;
+            topContainer.appendChild(div);
+        });
+
+        // Hero Video Transition
+        setTimeout(() => {
+            const heroImg = document.getElementById('hero-img');
+            const heroVideo = document.getElementById('hero-video');
+            if(heroVideo && heroImg) {
+                heroVideo.classList.remove('opacity-0');
+                heroVideo.classList.add('opacity-70');
+                heroImg.classList.remove('opacity-70');
+                heroImg.classList.add('opacity-0');
+            }
+        }, 3000);
+
+        // Render More Movies
+        const moreContainer = document.getElementById('more-movies-container');
+        const noResults = document.getElementById('no-results');
+        
+        const renderCatalogue = (movies) => {
+            moreContainer.innerHTML = '';
+            if(movies.length === 0) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+                movies.forEach(movie => {
+                    const div = document.createElement('div');
+                    div.className = 'movie-card rounded-lg overflow-hidden';
+                    
+                    if(movie.isSpecial) {
+                        div.onclick = () => handleSpecialContent(movie.data);
+                    } else {
+                        div.onclick = () => openVideo(movie.url, movie.title);
+                    }
+
+                    div.innerHTML = `
+                        <div class="custom-thumb">
+                            <h3>${movie.title}</h3>
+                        </div>
+                        <div class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <div class="w-12 h-12 rounded-full bg-[#E50914] flex items-center justify-center shadow-[0_0_15px_rgba(229,9,20,0.8)]">
+                                <svg class="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                        </div>
+                    `;
+                    moreContainer.appendChild(div);
+                });
+            }
+        };
+
+        // Voir Plus Logic with Suspense Animation
+        const btn = document.getElementById('voir-plus-btn');
+        const searchFilters = document.getElementById('search-filters');
+        const moreSection = document.getElementById('more-movies-section');
+        const voirPlusContainer = document.getElementById('voir-plus-container');
+
+        btn.addEventListener('click', () => {
+            voirPlusContainer.classList.add('hidden');
+            searchFilters.classList.remove('hidden');
+            moreSection.classList.remove('hidden');
+            
+            // Render all initially
+            renderCatalogue(otherMovies);
+
+            // Slow suspense animation
+            setTimeout(() => {
+                searchFilters.classList.add('active');
+                setTimeout(() => {
+                    moreSection.classList.add('active');
+                    searchFilters.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 800);
+            }, 100);
+        });
+
+        // Search & Filter Logic
+        let currentFilter = 'all';
+        let searchQuery = '';
+
+        const filterMovies = () => {
+            const filtered = otherMovies.filter(m => {
+                const matchSearch = m.title.toLowerCase().includes(searchQuery.toLowerCase());
+                const matchCategory = currentFilter === 'all' || m.category === currentFilter;
+                return matchSearch && matchCategory;
+            });
+            renderCatalogue(filtered);
+        };
+
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            filterMovies();
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentFilter = e.target.getAttribute('data-filter');
+                filterMovies();
+            });
+        });
+
+        // Event Listeners for Static Elements
+        document.getElementById('hero-play-btn').addEventListener('click', () => {
+            openVideo('https://www.tokyvideo.com/fr/embed/810942', 'Oppenheimer');
+        });
+
+        document.getElementById('pb-card').addEventListener('click', () => {
+            handleSpecialContent(prisonBreakData);
+        });
+
+        document.getElementById('sp-card').addEventListener('click', () => {
+            handleSpecialContent(southParkData);
+        });
+
+        document.getElementById('fb-card').addEventListener('click', () => {
+            handleSpecialContent(familyBusinessData);
+        });
+
+        // Unified Modal Logic
+        const unifiedModal = document.getElementById('unified-modal');
+        const unifiedIframe = document.getElementById('unified-video-frame');
+        const sidebarContent = document.getElementById('modal-sidebar-content');
+        const sidebarTitle = document.getElementById('sidebar-title');
+        const externalUi = document.getElementById('external-link-ui');
+        const externalBtn = document.getElementById('external-btn');
+        const externalMsg = document.getElementById('external-message');
+
+        let currentSeriesData = null;
+        let currentSeasonIndex = 0;
+
+        function openUnifiedModal() {
+            unifiedModal.classList.remove('hidden');
+            setTimeout(() => unifiedModal.classList.remove('opacity-0'), 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeUnifiedModal() {
+            unifiedModal.classList.add('opacity-0');
+            setTimeout(() => {
+                unifiedModal.classList.add('hidden');
+                unifiedIframe.src = '';
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        // Handle Movies (Standard)
+        function openVideo(url, title = "Film") {
+            // Setup Video
+            unifiedIframe.src = url;
+            unifiedIframe.classList.remove('hidden');
+            externalUi.classList.add('hidden');
+            
+            // Setup Sidebar (Recommendations)
+            sidebarTitle.innerText = "Recommandations";
+            sidebarContent.innerHTML = '';
+            
+            // Get 4 random movies
+            const randomMovies = [...topMovies, ...otherMovies.filter(m => !m.isSpecial)]
+                .sort(() => 0.5 - Math.random())
+                .slice(0, 5);
+
+            randomMovies.forEach(movie => {
+                const div = document.createElement('div');
+                div.className = 'recommendation-card flex gap-3 p-2 rounded cursor-pointer transition-colors';
+                div.onclick = () => {
+                    if(movie.url) openVideo(movie.url, movie.title);
+                };
+                
+                // Use a generic image if no img property (for otherMovies)
+                const imgUrl = movie.img || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=200&auto=format&fit=crop';
+                
+                div.innerHTML = `
+                    <div class="w-32 aspect-video bg-gray-800 rounded overflow-hidden flex-shrink-0">
+                        <img src="${imgUrl}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex flex-col justify-center">
+                        <h4 class="font-bold text-sm text-white line-clamp-2">${movie.title}</h4>
+                        <span class="text-xs text-gray-400 mt-1">Film</span>
+                    </div>
+                `;
+                sidebarContent.appendChild(div);
+            });
+
+            openUnifiedModal();
+        }
+
+        // Handle Special Content (Series & External)
+        function handleSpecialContent(data) {
+            if(data.type === 'external_redirect') {
+                // External Link UI
+                unifiedIframe.classList.add('hidden');
+                externalUi.classList.remove('hidden');
+                externalMsg.innerText = data.message;
+                externalBtn.href = data.url;
+                
+                // Sidebar for External
+                sidebarTitle.innerText = "Autres Séries";
+                sidebarContent.innerHTML = '';
+                // Add some series suggestions
+                [prisonBreakData, familyBusinessData].forEach(s => {
+                    if(s.title !== data.title) {
+                        const div = document.createElement('div');
+                        div.className = 'recommendation-card flex gap-3 p-2 rounded cursor-pointer transition-colors';
+                        div.onclick = () => handleSpecialContent(s);
+                        div.innerHTML = `
+                            <div class="w-32 aspect-video bg-gray-800 rounded overflow-hidden flex-shrink-0">
+                                <div class="w-full h-full bg-gradient-to-br from-red-900 to-black flex items-center justify-center">
+                                    <span class="font-bebas text-lg text-white/50">${s.title}</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col justify-center">
+                                <h4 class="font-bold text-sm text-white">${s.title}</h4>
+                                <span class="text-xs text-gray-400 mt-1">Série</span>
+                            </div>
+                        `;
+                        sidebarContent.appendChild(div);
+                    }
+                });
+
+                openUnifiedModal();
+
+            } else if(data.type === 'series' || data.type === 'external_series') {
+                // Series UI
+                currentSeriesData = data;
+                unifiedIframe.classList.remove('hidden');
+                externalUi.classList.add('hidden');
+                
+                // Play first episode by default
+                if(data.seasons[0].episodes[0].url) {
+                    unifiedIframe.src = data.seasons[0].episodes[0].url;
+                } else {
+                    // If first ep not available (unlikely for demo but possible)
+                    unifiedIframe.src = '';
+                }
+
+                renderSeriesSidebar(0);
+                openUnifiedModal();
+            }
+        }
+
+        function renderSeriesSidebar(seasonIndex) {
+            currentSeasonIndex = seasonIndex;
+            sidebarTitle.innerText = `Saisons & Épisodes`;
+            sidebarContent.innerHTML = '';
+
+            // Season Selector
+            const seasonSelectDiv = document.createElement('div');
+            seasonSelectDiv.className = 'flex flex-wrap gap-2 mb-4';
+            currentSeriesData.seasons.forEach((season, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `px-3 py-1 rounded text-xs font-bold transition-colors ${idx === seasonIndex ? 'bg-[#E50914] text-white' : 'bg-white/10 text-gray-300 hover:bg-white/20'}`;
+                btn.innerText = season.name;
+                btn.onclick = () => renderSeriesSidebar(idx);
+                seasonSelectDiv.appendChild(btn);
+            });
+            sidebarContent.appendChild(seasonSelectDiv);
+
+            // Episodes List
+            const season = currentSeriesData.seasons[seasonIndex];
+            season.episodes.forEach((ep, idx) => {
+                const div = document.createElement('div');
+                const isAvailable = ep.url !== null;
+                const isActive = unifiedIframe.src === ep.url;
+                
+                div.className = `recommendation-card flex gap-3 p-3 rounded cursor-pointer transition-colors ${isActive ? 'bg-white/10 border-l-2 border-[#E50914]' : ''} ${!isAvailable ? 'opacity-50 cursor-not-allowed' : ''}`;
+                
+                if(isAvailable) {
+                    div.onclick = () => {
+                        if(currentSeriesData.type === 'external_series') {
+                            window.open(ep.url, '_blank');
+                        } else {
+                            unifiedIframe.src = ep.url;
+                            // Re-render to update active state
+                            renderSeriesSidebar(seasonIndex);
+                        }
+                    };
+                }
+
+                div.innerHTML = `
+                    <div class="w-8 flex items-center justify-center font-bebas text-xl text-gray-500">${ep.ep}</div>
+                    <div class="flex flex-col justify-center">
+                        <h4 class="font-bold text-sm text-white">Épisode ${ep.ep}</h4>
+                        <span class="text-xs text-gray-400 mt-1">${isAvailable ? 'Regarder' : 'Indisponible'}</span>
+                    </div>
+                    ${isActive ? '<div class="ml-auto flex items-center text-[#E50914]"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>' : ''}
+                `;
+                sidebarContent.appendChild(div);
+            });
+        }
+
+        unifiedModal.addEventListener('click', (e) => {
+            if(e.target === unifiedModal) closeUnifiedModal();
+        });
+    </script>
+</body>
+</html>
+
